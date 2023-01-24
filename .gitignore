@@ -1,0 +1,8 @@
+test*.py
+*checkpoint*
+*.xml
+corrupted_ids.ipynb
+Fracture_*
+*py_cache*
+.*
+!.gitignore
