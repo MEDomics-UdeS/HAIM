@@ -51,14 +51,14 @@ $ python run_experiments.py
 - prediction tasks and 2047 for the length-of-stay and 48h mortality). We didn't run the experiment 
 - but we approximate the execution time to 200 days run with the current implementation using only CPUs.
 ```
-The experiments results (metrics values and figures) will be stored in the ``experiments`` directory where the name of each folder is structured as ``TaskName_NumberOfTheExperiment``
-(ex. Fracture_25).
+The experiments results (metrics values and figures) will be stored in the [``experiments``](experiments) directory where the name of each folder is structured as ``TaskName_NumberOfTheExperiment``
+(ex. Fracture_25). For each prediction task, the sources combination with the best AUC will be stored in the directory ``TaskName__best_experiment``.
 
 To reproduce the HAIM exepriment on one single predictive task, run the following command:
 ```
 $ python run_experiments.py -t task_name
 ```
-Tasks names can be found in ``src/data/constants.py`` 
+Tasks names can be found in ``src/data/constants.py``. A recap of the best experiment is stored in the directory ``TaskName__best_experiment``.
 
 ## 3. Prediction of the 12 tasks using the 4 modalities 
 Experiments using all the sources from the 4 modalities to predict the 12 tasks can be found in the [``notebooks``](notebooks) directory, each notebook is named after the prediction task it performs.
@@ -95,18 +95,19 @@ Lenght of stay     | 0.932 +- 0.012		 | 0.939|
 More statistics and metrics are reported from each of the 12 experiments above and can be found in the ``experiments`` directory, each experiment directory is named after the task on which the prediction model was evaluated.
 
 ## 4. Prediction of one single task using all sources combinations
-We tried to reproduce the HAIM experiment and use all the 1022 possible sources combinations to predict the presence or absence of a fracture in a patient and select the one resulting in the best ``AUC``.
+We tried to reproduce the HAIM experiment and use all the 1023 possible sources combinations to predict the presence or absence of a fracture in a patient and select the one resulting in the best ``AUC``.
 
 Below the ``AUC`` values reported from our experiments compared to the one reported in the HAIM paper. 
  AUC from our experiment | AUC from the paper |
  -----------| ----------- |
- // | 0.838 |
+0.862 +- 0.112 | 0.838 |
  
  
 The above experiment can be performed using the following command
 ```
 $ python run_experiments.py -t Fracture
 ```
-A ``json file`` named ``Fracture_all_sources_recap.json`` is generated at the end of the experiment containing more statistics and metrics values.
+A recap of the experiment named [``Fracture__best_experiment``](experiments/Fracture__best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
+
 ## 5. Issues 
 While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset, see [``corrupted_ids.py``](corrupted_ids.py) for further details. 
