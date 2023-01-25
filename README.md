@@ -37,18 +37,18 @@ Experiments using the 4 modalities to predict the 12 tasks can be found in the `
 Below are the ``AUC`` values reported from our experiments compared to those reported in the HAIM paper (refer to page 4 from the [paper](https://www.nature.com/articles/s41746-022-00689-4))
 Task | AUC from our experiment | AUC from the paper |
 ---------| -----------| ----------- |
-Fracture | 0.828 +- 0.1103 | 0.838 |
-Pneumothorax| 0.8114 +- 0.0208 | 0.836 |
-Pneumonia       | 0.8714 +- 0.0126 | 0.883    |
-Lung opacity       | 	0.7971 +- 0.0152 | 0.816   |
-Lung lesion    | 0.8286 +- 0.0529	 | 0.844   |
+Fracture | 0.828 +- 0.110 | 0.838 |
+Pneumothorax| 0.811 +- 0.021 | 0.836 |
+Pneumonia       | 0.871 +- 0.013 | 0.883    |
+Lung opacity       | 	0.797 +- 0.015 | 0.816   |
+Lung lesion    | 0.829 +- 0.053	 | 0.844   |
 Enlarged Cardiomediastinum      | 0.8768 +- 0.035	 | 0.876  |
-Edema      | 0.9147 +- 0.0072		 |0.917	 |
-Consolidation    | 0.9181 +- 0.0183		 | 0.929 |
-Cardiomegaly      | 0.908 +- 0.0038		 | 0.914 |
-Atelectasis     | 0.7654 +- 0.0132	 | 0.779	 |
-Lenght of stay     | 0.9323 +- 0.0115		 | 0.939|
-48 hours mortality     | 0.9066 +- 0.0072		 | 0.912	|
+Edema      | 0.915 +- 0.007		 |0.917	 |
+Consolidation    | 0.918 +- 0.018		 | 0.929 |
+Cardiomegaly      | 0.908 +- 0.004	 | 0.914 |
+Atelectasis     | 0.765 +- 0.013	 | 0.779	 |
+Lenght of stay     | 0.932 +- 0.012		 | 0.939|
+48 hours mortality     | 0.907 +- 0.007		 | 0.912	|
 
 More statistics and metrics are reported from each of the 12 experiments above and can be found in the ``experiments`` directory, each experiment directory is named after the task on which the prediction model was evaluated.
 
