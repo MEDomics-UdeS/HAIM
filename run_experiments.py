@@ -20,6 +20,7 @@ from src.utils.metric_scores import *
 from xgboost import XGBClassifier
 from numpy import unique
 from pandas import read_csv, DataFrame
+from tqdm import tqdm
 
 
 def get_all_sources_combinations(sources: List[Callable]):
@@ -77,7 +78,6 @@ def run_single_experiment(prediction_task: str,
                     'verbosity': 1
                     }
 
-    print('########## start of evaluation ######################')
     # Launch the evaluation
     evaluation = Evaluator(dataset=dataset,
                            masks=masks,
@@ -108,19 +108,20 @@ if __name__ == '__main__':
     all_tasks = Task() if args.task is None else [args.task]
 
     for task in all_tasks:
+        print(f"#######################{task} experiment#######################")
         # Get all possible combinations of sources for the current task
         sources_comb = get_all_sources_combinations(SOURCES) if task in [MORTALITY, LOS] \
             else get_all_sources_combinations(CHEST_SOURCES)
 
-        for count, combination in enumerate(sources_comb):
-            if count > 172:
+        with tqdm(total=len(sources_comb)) as bar:
+            for count, combination in enumerate(sources_comb):
+
                 # Get all predictors and modalities for each source
                 predictors = []
                 for c in combination:
                     predictors = predictors + c.sources
                 modalities = unique([c.modality for c in combination])
-    
+
                 run_single_experiment(prediction_task=task, sources_predictors=predictors, sources_modalities=modalities,
                                       dataset=df, evaluation_name=task + '_' + str(count))
-            else:
-                pass
+                bar.update()
