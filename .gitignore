@@ -6,3 +6,4 @@ Fracture_*
 *py_cache*
 .*
 !.gitignore
+!*best_experiment*

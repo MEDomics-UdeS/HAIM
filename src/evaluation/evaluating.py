@@ -8,7 +8,8 @@ Description: This file is used to store Evaluator object which performs differen
 Date of last modification : 2023/01/11
 
 """
-
+import shutil
+import os
 from typing import Any, Callable, Dict, Union, List, Optional
 from src.evaluation.tuning import SklearnTuner, SklearnHpsOptimizer
 from src.data.dataset import HAIMDataset
@@ -356,6 +357,26 @@ class Evaluator:
         df_metrics = pd.DataFrame(metrics)
 
         return df_metrics
+
+    @staticmethod
+    def get_best_of_experiments(file_format: str,
+                                path_file: str,
+                                n_files: int) -> None:
+        metric_values = []
+        # Get the folders where each recap evaluation was saved
+        folders = [path.join(path_file, file_format + str(i)) for i in range(n_files)]
+
+        for folder in folders:
+            with open(path.join(folder, 'recap.json'), "r") as read_file:
+                recap_data = json.load(read_file)
+                # Get AUC values of all experiments
+                infos = recap_data["test_metrics"]['AUC']
+                metric_values.append(float(infos['mean']))
+
+        best_experiment = np.argmax(np.array(metric_values))
+
+        # Copy the files of the best experiment to the directory file_format_best_experiment
+        shutil.copytree(folders[best_experiment], path.join(path_file, file_format+'_best_experiment'))
 
     @staticmethod
     def reverse_map(map_: Dict[Any, Any]):
