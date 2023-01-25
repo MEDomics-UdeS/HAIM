@@ -8,12 +8,18 @@ to perform 12 predictive tasks (10 chest pathologies, length-of-stay and 48 h 
 The package can be used with different sources combinations to predict one of the 12 predictive tasks defined above. Here is a code snippet which uses one 
 combination of sources to predict patient's length-of-stay:
 ```python
+# Import the task name and the sources types to use for prediction
 from src.data.constants import LOS, DEMOGRAPHIC, CHART, LAB
+# Import the function needed to run an experiment
 from run_experiments import run_single_experiment
 
+# For each source type (demographic, chart events, lab events), get all the predictors (age, gender, insurance, etc.),
 sources = DEMOGRAPHIC.sources + CHART.sources + LAB.sources
+# Get the modalities to which belong the sources types we will use for prediction
 modalities = unique([source.modality for source in sources])
 
+# Run one single experiment with one sources combination (demographic, chart events, lab events) 
+# to predict the length-of-stay of each patient
 run_single_experiment(prediction_task=LOS, sources_predictors=sources, sources_modalities=modalities, 
                       evaluation_name='length_of_stay_exp')
 ```
