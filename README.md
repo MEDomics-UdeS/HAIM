@@ -47,7 +47,7 @@ $ python run_experiments.py
 ```
 ```diff
 - WARNING
-- The HAIM experiment performs 14314 evaluations (1022 evaluations for each of the chest pathologies 
+- The HAIM experiment performs 14324 evaluations (1022 evaluations for each of the chest pathologies 
 - prediction tasks and 2047 for the length-of-stay and 48h mortality). We didn't run the experiment 
 - but we approximate the execution time to 200 days run with the current implementation using only CPUs.
 ```
