@@ -132,7 +132,6 @@ The next step of our package is to regenerate the embeddings for each source typ
 │   ├── evaluation
 │   │   ├── tuning.py             <- Hyper-parameters optimizations using different optimizers
 │   │   └── evaluating.py         <- Skeleton of each experiment process 
-│   ├── recording                 <- Recording module
 │   └── utils                     
 │   │   └── metric_scores.py      <- Custom metrics implementations and wrappers
 ├── corrupted_ids.ipynb           <- Notebook to highlight some issues in the dataset
