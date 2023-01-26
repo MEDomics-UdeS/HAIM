@@ -4,8 +4,8 @@ It uses the [HAIM multimodal dataset](https://physionet.org/content/haim-multimo
 (tabular, time-series, text and images) and 11 unique sources
 to perform 12 predictive tasks (10 chest pathologies, length-of-stay and 48 h mortality predictions).
 
-This package is our own adaptation of the [HAIM github package](https://github.com/lrsoenksen/HAIM.git). To the best of our knowledge, our implementation
-replicates the [HAIM study](https://www.nature.com/articles/s41746-022-00689-4). 
+This package is our own adaptation of the [HAIM github package](https://github.com/lrsoenksen/HAIM.git). To the best of our knowledge, our implementation is able to
+replicate the [HAIM study](https://www.nature.com/articles/s41746-022-00689-4). 
 
 ## 2. How to use the package ?
 The package can be used with different sources combinations to predict one of the 12 predictive tasks defined above. Here is a code snippet which uses one 
@@ -16,7 +16,8 @@ from src.data.constants import LOS, DEMOGRAPHIC, CHART, LAB
 # Import the function needed to run an experiment
 from run_experiments import run_single_experiment
 
-# For each source type (demographic, chart events, lab events), get all the predictors (age, gender, insurance, etc.),
+# For each source type (demographic, chart events, lab events), get all the predictors 
+# (age, gender, insurance, etc.),
 sources = DEMOGRAPHIC.sources + CHART.sources + LAB.sources
 # Get the modalities to which belong the sources types we will use for prediction
 modalities = unique([source.modality for source in sources])
@@ -47,9 +48,10 @@ $ python run_experiments.py
 ```
 ```diff
 - WARNING
-- The HAIM experiment performs 14324 evaluations (1022 evaluations for each of the chest pathologies 
-- prediction tasks and 2047 for the length-of-stay and 48h mortality). We didn't run the experiment 
-- but we approximate the execution time to 200 days run with the current implementation using only CPUs.
+- The HAIM experiment performs 14324 evaluations (1022 evaluations for each 
+- of the chest pathologies prediction tasks and 2047 for the length-of-stay 
+- and 48h mortality). We didn't run the experiment but we approximate the 
+- execution time to 200 days run with the current implementation using only CPUs.
 ```
 The experiments results (metrics values and figures) will be stored in the [``experiments``](experiments) directory where the name of each folder is structured as ``TaskName_NumberOfTheExperiment``
 (ex. Fracture_25). For each prediction task, the sources combination with the best AUC will be stored in the directory ``TaskName__best_experiment``.
@@ -65,8 +67,9 @@ Experiments using all the sources from the 4 modalities to predict the 12 tasks 
 
 ```diff
 ! NOTE
-! All the 11 sources were used to predict the length-of-stay and 48 hours mortality but the radiology 
-! notes were excluded to predict the chest pathologies to avoid data leakage
+! All the 11 sources were used to predict the length-of-stay and 48 hours 
+! mortality but the radiology notes were excluded to predict the chest 
+! pathologies to avoid data leakage
 ```
 
 
@@ -74,7 +77,9 @@ Below are the ``AUC`` values reported from our experiments compared to those rep
 
 ```diff
 ! NOTE
-! The paper reported the sources combination which resulted in the best AUC value.
+! The paper reported the best AUC value among all the experiments for each task
+! while we reported the AUC value resulting from the evaluation using all the sources
+! for each prediction task.
 ```
 
 Task | AUC from our experiment | AUC from the paper |
@@ -110,4 +115,27 @@ $ python run_experiments.py -t Fracture
 A recap of the experiment named [``Fracture__best_experiment``](experiments/Fracture__best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
 
 ## 5. Issues 
-While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset, see [``corrupted_ids.py``](corrupted_ids.py) for further details. 
+While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset, see [``corrupted_ids.ipynb``](corrupted_ids.py) for further details. 
+
+## 6. Future work
+The next step of our package is to regenerate the embeddings for each source type. For each modality (tabular, time-series, image, text), we will also explore new embeddings generators. 
+
+## Project Tree
+```
+├── experiments                  <- Directories with statistics and metrics values from each evaluation
+├── notebooks                    <- Notebooks with experiments using all sources for each prediction task
+├── src                          <- All project modules
+│   ├── data
+│   │   ├── contants.py           <- Constants related to the HAIM study
+│   │   ├── datasets.py           <- Custom dataset implementation for the HAIM study
+│   │   └── sampling.py           <- Samples the dataset to test, train and validation
+│   ├── evaluation
+│   │   ├── tuning.py             <- Hyper-parameters optimizations using different optimizers
+│   │   └── evaluating.py         <- Skeleton of each experiment process 
+│   ├── recording                 <- Recording module
+│   └── utils                     
+│   │   └── metric_scores.py      <- Custom metrics implementations and wrappers
+├── corrupted_ids.ipynb           <- Notebook to highlight some issues in the dataset
+├── requirements.txt              <- All the requirements to install to run the project
+├── run_experiments.py            <- Main script used to replicate the experiments of the HAIM study
+└── README.md
