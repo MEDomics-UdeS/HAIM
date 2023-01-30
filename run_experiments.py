@@ -125,3 +125,5 @@ if __name__ == '__main__':
                 run_single_experiment(prediction_task=task, sources_predictors=predictors, sources_modalities=modalities,
                                       dataset=df, evaluation_name=task + '_' + str(count))
                 bar.update()
+
+        Evaluator.get_best_of_experiments(task+'_', EXPERIMENT_PATH, count)

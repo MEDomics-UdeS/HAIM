@@ -58,7 +58,7 @@ class Tuner(ABC):
         self._metric = metric
         self._hps = hps
         self._n_splits = n_splits
-        self._n_cpus = 8 if parallel else 1  # Use all cpus for parallel tuning or a single one only
+        self._n_cpus = -1 if parallel else 1  # Use all cpus for parallel tuning or a single one only
 
     @abstractmethod
     def tune(self,
