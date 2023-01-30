@@ -361,7 +361,16 @@ class Evaluator:
     @staticmethod
     def get_best_of_experiments(file_format: str,
                                 path_file: str,
-                                n_files: int) -> None:
+                                n_files: int,
+                                metric = 'AUC') -> None:
+        """
+            Gets the experiment with the best metric value from a set of saved experiments
+            Args:
+                file_format: file name format of the experiments
+                path_file: path to directory where the experiments are saved
+                n_files: number of experiments to compare
+                metric: metric name
+        """
         metric_values = []
         # Get the folders where each recap evaluation was saved
         folders = [path.join(path_file, file_format + str(i)) for i in range(n_files)]
@@ -370,7 +379,7 @@ class Evaluator:
             with open(path.join(folder, 'recap.json'), "r") as read_file:
                 recap_data = json.load(read_file)
                 # Get AUC values of all experiments
-                infos = recap_data["test_metrics"]['AUC']
+                infos = recap_data["test_metrics"][metric]
                 metric_values.append(float(infos['mean']))
 
         best_experiment = np.argmax(np.array(metric_values))
