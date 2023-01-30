@@ -1,11 +1,10 @@
 ## 1. Introduction
-This is an open-source python package which replicates the [HAIM](https://www.nature.com/articles/s41746-022-00689-4) study. 
+This is an open-source python package which attempts to replicate the [HAIM](https://www.nature.com/articles/s41746-022-00689-4) study. 
 It uses the [HAIM multimodal dataset](https://physionet.org/content/haim-multimodal/1.0.1/) containing data of 4 modalities 
 (tabular, time-series, text and images) and 11 unique sources
 to perform 12 predictive tasks (10 chest pathologies, length-of-stay and 48 h mortality predictions).
 
-This package is our own adaptation of the [HAIM github package](https://github.com/lrsoenksen/HAIM.git). To the best of our knowledge, our implementation is able to
-replicate the [HAIM study](https://www.nature.com/articles/s41746-022-00689-4). 
+This package is our own adaptation of the [HAIM github package](https://github.com/lrsoenksen/HAIM.git). 
 
 ## 2. How to use the package ?
 The package can be used with different sources combinations to predict one of the 12 predictive tasks defined above. Here is a code snippet which uses one 
@@ -48,10 +47,10 @@ $ python run_experiments.py
 ```
 ```diff
 - WARNING
-- The HAIM experiment performs 14324 evaluations (1022 evaluations for each 
+- The HAIM experiment performs 14324 evaluations (1023 evaluations for each 
 - of the chest pathologies prediction tasks and 2047 for the length-of-stay 
 - and 48h mortality). We didn't run the experiment but we approximate the 
-- execution time to 200 days run with the current implementation using only CPUs.
+- execution time to 200 days run with the current implementation using only 10 CPUs.
 ```
 The experiments results (metrics values and figures) will be stored in the [``experiments``](experiments) directory where the name of each folder is structured as ``TaskName_NumberOfTheExperiment``
 (ex. Fracture_25). For each prediction task, the sources combination with the best AUC will be stored in the directory ``TaskName__best_experiment``.
@@ -63,7 +62,7 @@ $ python run_experiments.py -t task_name
 Tasks names can be found in ``src/data/constants.py``. A recap of the best experiment is stored in the directory ``TaskName__best_experiment``.
 
 ## 3. Prediction of the 12 tasks using the 4 modalities 
-Experiments using all the sources from the 4 modalities to predict the 12 tasks can be found in the [``notebooks``](notebooks) directory, each notebook is named after the prediction task it performs.
+Experiments using all the sources from the 4 modalities to predict the 12 tasks can be found in the [``notebooks``](notebooks) directory. Each notebook is named after the prediction task it performs.
 
 ```diff
 ! NOTE
@@ -77,9 +76,10 @@ Below are the ``AUC`` values reported from our experiments compared to those rep
 
 ```diff
 ! NOTE
-! The paper reported the best AUC value among all the experiments for each task
-! while we reported the AUC value resulting from the evaluation using all the sources
-! for each prediction task.
+! The paper reported the best AUC value among all the experiments (all possible 
+! sources combinations for each predictive task) for each task while we
+! reported the AUC value resulting from the evaluation using all the sources
+! for each predictive task.
 ```
 
 Task | AUC from our experiment | AUC from the paper |
@@ -100,7 +100,7 @@ Lenght of stay     | 0.932 +- 0.012		 | 0.939|
 More statistics and metrics are reported from each of the 12 experiments above and can be found in the ``experiments`` directory, each experiment directory is named after the task on which the prediction model was evaluated.
 
 ## 4. Prediction of one single task using all sources combinations
-We tried to reproduce the HAIM experiment and use all the 1023 possible sources combinations to predict the presence or absence of a fracture in a patient and select the one resulting in the best ``AUC``.
+We tried to reproduce the HAIM experiment and used all the 1023 possible sources combinations to predict the presence or absence of a fracture in a patient and select the one resulting in the best ``AUC``.
 
 Below the ``AUC`` values reported from our experiments compared to the one reported in the HAIM paper. 
  AUC from our experiment | AUC from the paper |
@@ -115,7 +115,7 @@ $ python run_experiments.py -t Fracture
 A recap of the experiment named [``Fracture__best_experiment``](experiments/Fracture__best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
 
 ## 5. Issues 
-While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset, see [``corrupted_ids.ipynb``](corrupted_ids.py) for further details. 
+While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset. See [``corrupted_ids.ipynb``](corrupted_ids.py) for further details. 
 
 ## 6. Future work
 The next step of our package is to regenerate the embeddings for each source type. For each modality (tabular, time-series, image, text), we will also explore new embeddings generators. 
