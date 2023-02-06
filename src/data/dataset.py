@@ -5,10 +5,12 @@ Description: This file is used to define classes related to the dataset
 Date of last modification : 2023/01/11
 """
 
-import pandas as pd
 from typing import List, Union, Tuple, Optional, Dict
-from src.data.constants import *
+
 import numpy as np
+import pandas as pd
+
+from src.data import constants
 
 
 class Task:
@@ -17,9 +19,18 @@ class Task:
     """
 
     def __iter__(self):
-        return iter([FRACTURE, LUNG_LESION, ENLARGED_CARDIOMEDIASTINUM, CONSOLIDATION,
-                     PNEUMONIA, LUNG_OPACITY, ATELECTASIS, PNEUMOTHORAX, EDEMA,
-                     CARDIOMEGALY, MORTALITY, LOS])
+        return iter([constants.FRACTURE,
+                     constants.LUNG_LESION,
+                     constants.ENLARGED_CARDIOMEDIASTINUM,
+                     constants.CONSOLIDATION,
+                     constants.PNEUMONIA,
+                     constants.LUNG_OPACITY,
+                     constants.ATELECTASIS,
+                     constants.PNEUMOTHORAX,
+                     constants.EDEMA,
+                     constants.CARDIOMEGALY,
+                     constants.MORTALITY,
+                     constants.LOS])
 
 
 class HAIMDataset:
@@ -87,11 +98,11 @@ class HAIMDataset:
            Gets specific rows in the dataset
 
             Args:
-                idx: list of int or int of indexes from which to get associated rows in the dataset, or a dataframe /
-                    serie of booleans with same length as the dataset or a string representing the name of a column
-                    in the dataset
+                idx(Union[int, List[int], str, pd.DataFrame, pd.Series]): list of int or int of indexes from which to
+                get associated rows in the dataset, or a dataframe serie of booleans with same length as the dataset or
+                a string representing the name of a column in the dataset
 
-            Returns: (array of datas and targets) or a dataframe
+            Returns: (array of data and targets) or a dataframe
 
         """
 
@@ -140,14 +151,10 @@ class HAIMDataset:
         """
 
         # Compute targets for non-chest pathologies tasks
-        if self._task == MORTALITY:
-            self._original_dataset[self._task] = None
+        if self._task == constants.MORTALITY:
             # If the patient died within 48 hours after the hospital admission
             self._original_dataset.loc[((self._original_dataset['img_length_of_stay'] < 48) &
                                         (self._original_dataset['death_status'] == 1)), self._task] = 1
-
-            # self._original_dataset[((self._original_dataset['img_length_of_stay'] < 48) &
-            #                        (self._original_dataset['death_status'] == 1))][self._task] = 1
 
             # If the patient survived
             self._original_dataset.loc[self._original_dataset['death_status'] == 0, self._task] = 0
@@ -156,14 +163,14 @@ class HAIMDataset:
             self._original_dataset.loc[((self._original_dataset['img_length_of_stay'] >= 48) &
                                         (self._original_dataset['death_status'] == 1)), self._task] = 0
 
-        elif self._task == LOS:
+        elif self._task == constants.LOS:
             # If the patient was discharged less than 48 hours after the hospital admission alive
             self._original_dataset.loc[((self._original_dataset['img_length_of_stay'] < 48) &
-                                    (self._original_dataset['death_status'] == 0)), self._task] = 1
+                                        (self._original_dataset['death_status'] == 0)), self._task] = 1
 
             # If the patient died within 48 hours after the hospital admission
             self._original_dataset.loc[((self._original_dataset['img_length_of_stay'] < 48) &
-                                    (self._original_dataset['death_status'] == 1)), self._task] = 0
+                                        (self._original_dataset['death_status'] == 1)), self._task] = 0
 
             # If the patient stayed more than 48 hours in the hospital
             self._original_dataset.loc[self._original_dataset['img_length_of_stay'] >= 48, self._task] = 0
@@ -183,6 +190,7 @@ class HAIMDataset:
     def map_idx_to_global_ids(self) -> Union[Dict[int, List[int]], None]:
         """
             Maps the global_ids to all the observations indexes
+
         """
 
         if self._global_ids is not None:
@@ -211,7 +219,12 @@ class HAIMDataset:
 
     def get_global_ids(self, indexes: List[int]) -> Union[List[int], None]:
         """
-            Gets the list of global_ids
+            Gets the list of global_ids to a specific set of observations indexes
+
+            Args:
+                indexes(List[int]): observations indexes
+
+            Returns: a list of ids
         """
         if self.global_ids is not None:
             return self.task_dataset.iloc[indexes][self.global_ids].unique().tolist()
