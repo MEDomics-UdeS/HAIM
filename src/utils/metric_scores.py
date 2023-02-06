@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, Union
-
-import numpy as np
-import pandas as pd
 from numpy import array, zeros, mean, prod, power, diag, sum
-from sklearn.metrics import brier_score_loss, auc, confusion_matrix, accuracy_score, roc_curve, balanced_accuracy_score, log_loss
+from sklearn.metrics import brier_score_loss, auc,  roc_curve, log_loss
 
 
 class Direction:

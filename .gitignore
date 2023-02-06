@@ -5,4 +5,6 @@ Fracture_*
 *py_cache*
 .*
 !.gitignore
+!.gitkeep
 !*best_experiment*
+*.csv
