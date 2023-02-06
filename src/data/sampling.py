@@ -5,13 +5,14 @@ Author : Hakima Laribi
 
 Description: This file is used to define the sampler class which creates train, test and valid masks
 
-Date of last modification : 2023/01/10
+Date of last modification : 2023/02/06
 """
-
-from typing import Callable, List, Tuple, Union, Optional, Dict
-from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
-import numpy as np
 from tqdm import tqdm
+from typing import Callable, List, Tuple, Union, Optional, Dict
+
+import numpy as np
+from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
+
 from src.data.dataset import HAIMDataset
 
 
@@ -32,14 +33,15 @@ class Sampler:
             Sets public and protected attributed of the sampler
 
             Args:
-                dataset: custom HAIM dataset
-                split_column: the column according to which the data is sampled
-                n_splits: number of distinct splits
-                test_size: size of the test set
-                valid_size: size of the valid set
-                random_state: integer for reproducibility of experiments
-                cross_validation: boolean to specify weather perform a cross-validation or a sampling with replacement
-                stratify_column: if not None, specifies the column according to which perform a stratified sampling
+                dataset(HAIMDataset): custom HAIM dataset
+                split_column(str): the column according to which the data is sampled
+                n_splits(int): number of distinct splits
+                test_size(float): size of the test set
+                valid_size(float): size of the valid set
+                random_state(int): integer for reproducibility of experiments
+                cross_validation(bool): boolean to specify weather perform a cross-validation or a sampling with
+                 replacement
+                stratify_column(str): if not None, specifies the column according to which perform a stratified sampling
 
         """
 
@@ -160,6 +162,13 @@ class Sampler:
                   valid_mask: List[int] = None) -> Tuple[List[int], List[int], Union[List[int], None]]:
         """
             Gets indexes associated with the global masks
+
+            Args:
+                train_mask(List[int]): global ids in the train set
+                test_mask(List[int]): global ids in the test set
+                valid_mask(List[int]): global ids in the valid set
+
+            Returns: Tuple of lists
         """
 
         # Get observations indexes in the dataframe corresponding to IDS of the split column selected in each set
@@ -167,19 +176,28 @@ class Sampler:
         # different stays and visits as present in the dataframe are then collected
         m = self._dataset.task_dataset[self._split_column].isin(train_mask)
         train_idx = self._dataset.task_dataset.index[m].tolist()
-        test_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(test_mask)].tolist()
-        valid_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(valid_mask)].tolist() \
-            if valid_mask is not None else None
+        test_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(test_mask)].\
+            tolist()
+        valid_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(valid_mask)].\
+            tolist() if valid_mask is not None else None
 
         return train_idx, test_idx, valid_idx
 
     def __get_valid_set(self,
                         train_mask: np.array,
                         stratify: Optional[np.array] = None,
-                        random_state=None) -> Tuple[np.array, Union[np.array, None]]:
+                        random_state: int = None) -> Tuple[np.array, Union[np.array, None]]:
 
         """
-            Splits the remaining set to train and valid sets
+            Splits the train set to the final train and valid sets
+
+            Args:
+                train_mask(np.array): (N,) ids of observations in the train set
+                stratify(Optional[np.array]): (N,) if not None, data is split in a stratified fashion, using this as
+                the class labels.
+                random_state(int): seed to reproduce the results
+
+            Returns: Tuple
         """
 
         train, valid = train_mask, None
