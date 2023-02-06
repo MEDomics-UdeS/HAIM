@@ -5,21 +5,25 @@ Author : Hakima Laribi
 
 Description: This file is used to store objects used for tuning
 
-Date of last modification : 2023/01/09
+Date of last modification : 2023/02/06
 
 """
 from abc import abstractmethod, ABC
 from typing import Callable, Dict, List, Any, Union
+
 from numpy import array
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.base import BaseEstimator
 from sklearn.metrics import make_scorer
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+
+from src.utils.metric_scores import Metric
 
 
 class SklearnHpsOptimizer:
     """
         Object used to store Scikit-learn hyper-parameter optimizers labels
     """
+
     GS = 'grid_search'
     RS = 'random_search'
 
@@ -41,7 +45,7 @@ class Tuner(ABC):
     """
 
     def __init__(self,
-                 metric: Callable,
+                 metric: Metric,
                  hps: Dict[str, List[Any]],
                  n_splits: int,
                  parallel: bool = True):
@@ -49,10 +53,11 @@ class Tuner(ABC):
             Sets protected attributes
 
             Args:
-                metric: callable function to optimize
-                hps: dictionary with the hyper-parameters to optimize and the corresponding values to explore
-                n_splits: number of inner splits on which test each combination of hyper-parameters
-                parallel: weather to run the tuning in parallel or not
+                metric(Metric): callable function to optimize
+                hps(Dict[str, List[Any]]): dictionary with the hyper-parameters to optimize and the corresponding values
+                to explore
+                n_splits(int): number of inner splits on which test each combination of hyper-parameters
+                parallel(bool): whether to run the tuning in parallel or not
         """
         # Set protected attributes
         self._metric = metric
@@ -69,9 +74,9 @@ class Tuner(ABC):
             Performs the tuning of a model on specific data
 
             Args:
-                model: the model to which find the best combination of hyper-parameters
-                x: (N, D) array where N is the number of observations and D the number of predictors
-                y: (N, 1) ground truth labels
+                model(Any): the model to which find the best combination of hyper-parameters
+                x(array): (N, D) array where N is the number of observations and D the number of predictors
+                y(array): (N, 1) ground truth labels
         """
         raise NotImplementedError
 
@@ -89,7 +94,7 @@ class SklearnTuner(Tuner):
     """
 
     def __init__(self,
-                 metric: Callable,
+                 metric: Metric,
                  hps: Dict[str, List[Any]],
                  n_splits: int,
                  model_selector: str = SklearnHpsOptimizer.GS,
@@ -98,10 +103,12 @@ class SklearnTuner(Tuner):
              Sets protected attributes
 
              Args:
-                metric: callable function to optimize
-                hps: dictionary with the hyper-parameters to optimize and the corresponding values to explore
-                n_splits: number of inner splits on which test each combination of hyper-parameters
-                parallel: weather to run the tuning in parallel or not
+                 metric(Metric): callable function to optimize
+                hps(Dict[str, List[Any]]): dictionary with the hyper-parameters to optimize and the corresponding values
+                to explore
+                n_splits(int): number of inner splits on which test each combination of hyper-parameters
+                model_selector(str): sckit-learn hyper-parameters optimizer
+                parallel(bool): whether to run the tuning in parallel or not
 
         """
         # Validation of inputs
@@ -113,6 +120,7 @@ class SklearnTuner(Tuner):
 
         # Call parent constructor
         super().__init__(metric, hps, n_splits, parallel)
+
         # Get the Hyper-parameter optimizer in Scikit-learn
         self._hps_optimizer = SklearnHpsOptimizer()[model_selector]
         self._optimizer = None
@@ -125,9 +133,9 @@ class SklearnTuner(Tuner):
             Performs the tuning of a model on specific data using a Scikit-learn Hyper-parameters optimizer
 
             Args:
-                model: the model to which find the best combination of hyper-parameters
-                x: (N, D) array where N is the number of observations and D the number of predictors
-                y: (N, 1) ground truth labels
+                model(Any): the model to which find the best combination of hyper-parameters
+                x(array): (N, D) array where N is the number of observations and D the number of predictors
+                y(array): (N, 1) ground truth labels
 
             Returns:
                 Scikit-Learn optimized model
