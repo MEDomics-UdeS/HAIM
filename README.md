@@ -4,9 +4,15 @@ It uses the [HAIM multimodal dataset](https://physionet.org/content/haim-multimo
 (tabular, time-series, text and images) and 11 unique sources
 to perform 12 predictive tasks (10 chest pathologies, length-of-stay and 48 h mortality predictions).
 
-This package is our own adaptation of the [HAIM github package](https://github.com/lrsoenksen/HAIM.git). 
+This package is our own adaptation of the [HAIM GitHub package](https://github.com/lrsoenksen/HAIM.git). 
 
 ## 2. How to use the package ?
+The dataset used to replicate this study is publicly available in [physionet](https://physionet.org/content/haim-multimodal/1.0.1/). To run this package:
+- Download the dataset and move it to [csvs](csvs).
+- Install the requirements under **Python 3.9.13** as following:
+```
+$ pip install requirements.txt
+```
 The package can be used with different sources combinations to predict one of the 12 predictive tasks defined above. Here is a code snippet which uses one 
 combination of sources to predict patient's length-of-stay:
 ```python
@@ -38,6 +44,21 @@ from run_experiments import run_single_experiment
 run_single_experiment(prediction_task=MORTALITY, sources_predictors=ALL_PREDICTORS, 
                       sources_modalities=ALL_MODALITIES, evaluation_name='48h_mortality_exp')
 ```
+All data sources and modalities are stored as [constants](src/data/constants.py), here is a summary of all data modalities and sources to use for prediction:
+Modalities | Sources | 
+---------| -----------| 
+constants.TAB | constants.DEMOGRAPHIC |
+constants.TS | constants.CHART |
+constants.TS | constants.LAB |
+constants.TS | constants.PROC |
+constants.TXT | constants.RAD |
+constants.TXT | constants.ECG |
+constants.TXT | constants.ECHO |
+constants.IMG | constants.VP |
+constants.IMG | constants.VMP |
+constants.IMG | constants.VD |
+constants.IMG | constants.VMD |
+constants.ALL_PREDICTORS | constants.ALL_MODALITIES
 
 To run the HAIM experiment which performs the 12 predictive tasks on all sources combinations 
 (refer to page 7 from the [Supplementary Material](https://static-content.springer.com/esm/art%3A10.1038%2Fs41746-022-00689-4/MediaObjects/41746_2022_689_MOESM1_ESM.pdf)),
@@ -57,10 +78,23 @@ The experiments results (metrics values and figures) will be stored in the [``ex
 
 To reproduce the HAIM exepriment on one single predictive task, run the following command:
 ```
-$ python run_experiments.py -t task_name
+$ python run_experiments.py -t "task_name"
 ```
-Tasks names can be found in ``src/data/constants.py``. A recap of the best experiment is stored in the directory ``TaskName__best_experiment``.
-
+A recap of the best experiment is stored in the directory ``TaskName__best_experiment``. Tasks names can be found in ``src/data/constants.py``and are summarized in the following table: 
+Task | Argument |
+---------| -----------| 
+Fracture | "Fracture" |
+Pneumothorax| "Pneumothorax" |
+Pneumonia       | "Pneumonia" |
+Lung opacity       | 	"Lung Opacity" |
+Lung lesion    | "Lung Lesion" |
+Enlarged Cardiomediastinum      | "Enlarged Cardiomediastinum" |
+Edema      | "Edema" |
+Consolidation    | "Consolidation" |
+Cardiomegaly      | "Cardiomegaly" |
+Atelectasis     | "Atelectasis" |
+Length of stay     | "48h los" |
+48 hours mortality     | "48h mortality" |
 ## 3. Prediction of the 12 tasks using the 4 modalities 
 Experiments using all the sources from the 4 modalities to predict the 12 tasks can be found in the [``notebooks``](notebooks) directory. Each notebook is named after the prediction task it performs.
 
@@ -94,15 +128,15 @@ Edema      | 0.915 +- 0.007		 |0.917	 |
 Consolidation    | 0.918 +- 0.018		 | 0.929 |
 Cardiomegaly      | 0.908 +- 0.004	 | 0.914 |
 Atelectasis     | 0.765 +- 0.013	 | 0.779	 |
-Lenght of stay     | 0.932 +- 0.012		 | 0.939|
+Length of stay     | 0.932 +- 0.012		 | 0.939|
 48 hours mortality     | 0.907 +- 0.007		 | 0.912	|
 
-More statistics and metrics are reported from each of the 12 experiments above and can be found in the ``experiments`` directory, each experiment directory is named after the task on which the prediction model was evaluated.
+More statistics and metrics are reported from each of the 12 experiments above and can be found in the ``experiments`` directory. Each experiment directory is named after the task on which the prediction model was evaluated.
 
 ## 4. Prediction of one single task using all sources combinations
 We tried to reproduce the HAIM experiment and used all the 1023 possible sources combinations to predict the presence or absence of a fracture in a patient and select the one resulting in the best ``AUC``.
 
-Below the ``AUC`` values reported from our experiments compared to the one reported in the HAIM paper. 
+Below the ``AUC`` value reported from our experiments compared to the one reported in the HAIM paper. 
  AUC from our experiment | AUC from the paper |
  -----------| ----------- |
 0.862 +- 0.112 | 0.838 |
@@ -110,12 +144,12 @@ Below the ``AUC`` values reported from our experiments compared to the one repor
  
 The above experiment can be performed using the following command
 ```
-$ python run_experiments.py -t Fracture
+$ python run_experiments.py -t "Fracture"
 ```
 A recap of the experiment named [``Fracture__best_experiment``](experiments/Fracture__best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
 
 ## 5. Issues 
-While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset. See [``corrupted_ids.ipynb``](corrupted_ids.py) for further details. 
+While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset. See [``corrupted_ids.ipynb``](corrupted_ids.ipynb) for further details. 
 
 ## 6. Future work
 The next step of our package is to regenerate the embeddings for each source type. For each modality (tabular, time-series, image, text), we will also explore new embeddings generators. 
@@ -126,7 +160,7 @@ The next step of our package is to regenerate the embeddings for each source typ
 ├── notebooks                    <- Notebooks with experiments using all sources for each prediction task
 ├── src                          <- All project modules
 │   ├── data
-│   │   ├── contants.py           <- Constants related to the HAIM study
+│   │   ├── constants.py           <- Constants related to the HAIM study
 │   │   ├── datasets.py           <- Custom dataset implementation for the HAIM study
 │   │   └── sampling.py           <- Samples the dataset to test, train and validation
 │   ├── evaluation
