@@ -58,7 +58,7 @@ constants.IMG | constants.VP |
 constants.IMG | constants.VMP |
 constants.IMG | constants.VD |
 constants.IMG | constants.VMD |
-constants.ALL_PREDICTORS | constants.ALL_MODALITIES
+constants.ALL_MODALITIES | constants.ALL_PREDICTORS | 
 
 To run the HAIM experiment which performs the 12 predictive tasks on all sources combinations 
 (refer to page 7 from the [Supplementary Material](https://static-content.springer.com/esm/art%3A10.1038%2Fs41746-022-00689-4/MediaObjects/41746_2022_689_MOESM1_ESM.pdf)),
