@@ -1,8 +1,11 @@
 """
 Filename: constants.py
+
 Author : Hakima Laribi
+
 Description: This file is used to store helpful constants
-Date of last modification : 2023/01/12
+
+Date of last modification : 2023/02/07
 """
 
 # All data modalities
@@ -122,7 +125,7 @@ GLOBAL_ID = 'haim_id'
 N_DATA = 45050
 
 # File where the dataset is stored
-FILE_DF = 'datasets/cxr_ic_fusion_1103.csv'
+FILE_DF = 'csvs/cxr_ic_fusion_1103.csv'
 
 EXPERIMENT_PATH = 'experiments'
 
@@ -140,8 +143,8 @@ CARDIOMEGALY = 'Cardiomegaly'
 MORTALITY = '48h mortality'
 LOS = '48h los'
 
-# AUC values from the paper
 
+# AUC values from the paper
 AUC = {'HAIM': {FRACTURE: 0.838,
                 LUNG_LESION: 0.844,
                 ENLARGED_CARDIOMEDIASTINUM: 0.876,
