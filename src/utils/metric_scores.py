@@ -1,3 +1,15 @@
+"""
+Filename: metric_scores.py
+
+Author : Nicolas Raymond
+         Hakima Laribi
+
+Description: This file is used to store objects used for computing metrics
+
+Date of last modification : 2023/02/07
+
+"""
+
 from abc import ABC, abstractmethod
 from numpy import array, zeros, mean, prod, power, diag, sum
 from sklearn.metrics import brier_score_loss, auc,  roc_curve, log_loss
