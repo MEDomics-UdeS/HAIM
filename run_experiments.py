@@ -6,26 +6,34 @@ Author : Hakima Laribi
 Description: This file is used to perform all the HAIM experiments presented
                 in the paper: https://doi.org/10.1038/s41746-022-00689-4
 
-Date of last modification : 2023/01/18
+Date of last modification : 2023/02/07
 """
+
 import argparse
 from itertools import combinations
+from tqdm import tqdm
 from typing import List, Callable, Optional
+
+from numpy import unique
+from pandas import read_csv, DataFrame
+from xgboost import XGBClassifier
+
+from src.data import constants
 from src.data.dataset import Task, HAIMDataset
 from src.data.sampling import Sampler
-from src.data.constants import *
 from src.evaluation.evaluating import Evaluator
 from src.evaluation.tuning import SklearnTuner
 from src.utils.metric_scores import *
-from xgboost import XGBClassifier
-from numpy import unique
-from pandas import read_csv, DataFrame
-from tqdm import tqdm
 
 
-def get_all_sources_combinations(sources: List[Callable]):
+def get_all_sources_combinations(sources: List[str]) -> List[List[str]]:
     """
         Function to extract all possible combinations of sources
+
+        Args:
+            sources(List[str]): list of sources types
+
+        Returns: list of combinations
     """
     comb = []
     for i in range(len(sources)):
@@ -40,30 +48,39 @@ def run_single_experiment(prediction_task: str,
                           sources_predictors: List[str],
                           sources_modalities: List[str],
                           dataset: Optional[DataFrame] = None,
-                          evaluation_name: Optional[str] = None):
+                          evaluation_name: Optional[str] = None) -> None:
     """
         Function to perform one single experiment
 
         Args:
-            prediction_task: task label, must be a HAIM prediction task
-            sources_predictors: predictors to use for prediction, each source has one or more predictors
-            sources_modalities: the modalities of the sources used for prediction
-            dataset: HAIM dataframe
-            evaluation_name: name of the experiment
+            prediction_task(task): task label, must be a HAIM prediction task
+            sources_predictors(List[str]): predictors to use for prediction, each source has one or more predictors
+            sources_modalities(List[str]): the modalities of the sources used for prediction
+            dataset(Optional[DataFrame]): HAIM dataframe
+            evaluation_name(Optional[str]): name of the experiment
     """
-    dataset = read_csv(FILE_DF, nrows=N_DATA) if dataset is None else dataset
+    dataset = read_csv(constants.FILE_DF, nrows=constants.N_DATA) if dataset is None else dataset
 
     # Create the HAIMDataset
-    dataset = HAIMDataset(dataset, sources_predictors, sources_modalities, prediction_task, IMG_ID, GLOBAL_ID)
+    dataset = HAIMDataset(dataset,
+                          sources_predictors,
+                          sources_modalities,
+                          prediction_task,
+                          constants.IMG_ID,
+                          constants.GLOBAL_ID)
 
     # Sample the dataset using a 5-folds cross-validation method
-    sampler = Sampler(dataset, GLOBAL_ID, 5)
+    sampler = Sampler(dataset, constants.GLOBAL_ID, 5)
     _, masks = sampler()
 
     # Initialization of the list containing the evaluation metrics
-    evaluation_metrics = [BinaryAccuracy(), BinaryBalancedAccuracy(),
+    evaluation_metrics = [BinaryAccuracy(),
+                          BinaryBalancedAccuracy(),
                           BinaryBalancedAccuracy(Reduction.GEO_MEAN),
-                          Sensitivity(), Specificity(), AUC(), BrierScore(),
+                          Sensitivity(),
+                          Specificity(),
+                          AUC(),
+                          BrierScore(),
                           BinaryCrossEntropy()]
 
     # Define the grid of hyper-parameters for the tuning
@@ -88,7 +105,7 @@ def run_single_experiment(prediction_task: str,
                            hps=grid_hps,
                            n_tuning_splits=5,
                            fixed_params=fixed_params,
-                           filepath=EXPERIMENT_PATH,
+                           filepath=constants.EXPERIMENT_PATH,
                            weight='scale_pos_weight',
                            evaluation_name=evaluation_name
                            )
@@ -103,15 +120,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Load the dataframe from disk
-    df = read_csv(FILE_DF, nrows=N_DATA)
+    df = read_csv(constants.FILE_DF, nrows=constants.N_DATA)
 
     all_tasks = Task() if args.task is None else [args.task]
 
     for task in all_tasks:
-        print(f"#######################{task} experiment#######################")
+        print("#"*23, f"{task} experiment", "#"*23)
         # Get all possible combinations of sources for the current task
-        sources_comb = get_all_sources_combinations(SOURCES) if task in [MORTALITY, LOS] \
-            else get_all_sources_combinations(CHEST_SOURCES)
+        sources_comb = get_all_sources_combinations(constants.SOURCES) if task in [constants.MORTALITY, constants.LOS] \
+            else get_all_sources_combinations(constants.CHEST_SOURCES)
 
         with tqdm(total=len(sources_comb)) as bar:
             for count, combination in enumerate(sources_comb):
@@ -126,4 +143,4 @@ if __name__ == '__main__':
                                       dataset=df, evaluation_name=task + '_' + str(count))
                 bar.update()
 
-        Evaluator.get_best_of_experiments(task+'_', EXPERIMENT_PATH, count)
+        Evaluator.get_best_of_experiments(task, constants.EXPERIMENT_PATH, count)
