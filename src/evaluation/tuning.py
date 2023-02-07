@@ -152,7 +152,7 @@ class SklearnTuner(Tuner):
         # return the model with best hyper-parameters
         return self._optimizer.best_estimator_
 
-    def get_best_hps(self):
+    def get_best_hps(self) -> Dict[str, Any]:
         """
             Returns the combination of hyper-parameters which optimized the metric value
         """
