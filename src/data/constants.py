@@ -1,8 +1,11 @@
 """
 Filename: constants.py
+
 Author : Hakima Laribi
+
 Description: This file is used to store helpful constants
-Date of last modification : 2023/01/12
+
+Date of last modification : 2023/02/07
 """
 
 # All data modalities
@@ -12,82 +15,86 @@ TXT = 'text'
 IMG = 'images'
 
 
-# Store each source type in a class structure
+# Store each source type in a class structure, for each class:
+# name: the name of the source type in the dataset
+# n_embeddings: number of embeddings extracted for this source type in the dataset
+# sources: column names of all extracted embeddings of the source type
+# modality: the modality to which the source type belongs
 
 class DEMOGRAPHIC:
     name = 'de'
-    n = 6
-    sources = [f"de_{i}" for i in range(n)]
+    n_embeddings = 6
+    sources = [f"de_{i}" for i in range(n_embeddings)]
     modality = TAB
 
 
 class CHART:
     name = 'ce'
-    n = 99
-    sources = [f"ts_ce_{i}" for i in range(n)]
+    n_embeddings = 99
+    sources = [f"ts_ce_{i}" for i in range(n_embeddings)]
     modality = TS
 
 
 class LAB:
     name = 'le'
-    n = 242
-    sources = [f"ts_le_{i}" for i in range(n)]
+    n_embeddings = 242
+    sources = [f"ts_le_{i}" for i in range(n_embeddings)]
     modality = TS
 
 
 class PROC:
     name = 'pe'
-    n = 110
-    sources = [f"ts_pe_{i}" for i in range(n)]
+    n_embeddings = 110
+    sources = [f"ts_pe_{i}" for i in range(n_embeddings)]
     modality = TS
 
 
 class RAD:
     name = 'rad'
-    n = 768
-    sources = [f"n_rad_{i}" for i in range(n)]
+    n_embeddings = 768
+    sources = [f"n_rad_{i}" for i in range(n_embeddings)]
     modality = TXT
 
 
 class ECG:
     name = 'ecg'
-    n = 768
-    sources = [f"n_ecg_{i}" for i in range(n)]
+    n_embeddings = 768
+    sources = [f"n_ecg_{i}" for i in range(n_embeddings)]
     modality = TXT
 
 
 class ECHO:
     name = 'echo'
-    n = 768
-    sources = [f"n_ech_{i}" for i in range(n)]
+    n_embeddings = 768
+    sources = [f"n_ech_{i}" for i in range(n_embeddings)]
     modality = TXT
 
 
 class VP:
     name = 'vp'
-    n = 18
-    sources = [f"vp_{i}" for i in range(n)]
+    n_embeddings = 18
+    sources = [f"vp_{i}" for i in range(n_embeddings)]
     modality = IMG
 
 
 class VMP:
     name = 'vmp'
-    n = 18
-    sources = [f"vmp_{i}" for i in range(n)]
+    n_embeddings = 18
+    sources = [f"vmp_{i}" for i in range(n_embeddings)]
     modality = IMG
 
 
 class VD:
     name = 'vd'
-    n = 1024
-    sources = [f"vd_{i}" for i in range(n)]
+    n_embeddings = 1024
+    sources = [f"vd_{i}" for i in range(n_embeddings)]
     modality = IMG
 
 
 class VMD:
     name = 'vmd'
-    n = 1024
-    sources = [f"vmd_{i}" for i in range(n)]
+    n_embeddings = 1024
+    sources = [f"vmd_{i}" for i in range(n_embeddings)]
     modality = IMG
 
 
@@ -98,11 +105,13 @@ SOURCES = [DEMOGRAPHIC, CHART, LAB, PROC, RAD, ECG, ECHO, VP, VMP, VD, VMD]
 ALL_PREDICTORS = DEMOGRAPHIC.sources + CHART.sources + LAB.sources + PROC.sources + RAD.sources + ECG.sources + \
                  ECHO.sources + VP.sources + VMP.sources + VD.sources + VMD.sources
 
+# Group all chest sources types in a list
+CHEST_SOURCES = [DEMOGRAPHIC, CHART, LAB, PROC, ECG, ECHO, VP, VMP, VD, VMD]
+
+# Group all predictors of chest sources in a list
 CHEST_PREDICTORS = DEMOGRAPHIC.sources + CHART.sources + LAB.sources + PROC.sources + ECG.sources + \
                    ECHO.sources + VP.sources + VMP.sources + VD.sources + VMD.sources
 
-# Group all chest sources types in a list
-CHEST_SOURCES = [DEMOGRAPHIC, CHART, LAB, PROC, ECG, ECHO, VP, VMP, VD, VMD]
 
 # Group all modalities in a list
 ALL_MODALITIES = [TAB, TS, TXT, IMG]
@@ -116,11 +125,11 @@ GLOBAL_ID = 'haim_id'
 N_DATA = 45050
 
 # File where the dataset is stored
-FILE_DF = '~/physionet.org/files/haim-multimodal/1.0.1/Extracted_HAIM_Embeddings/cxr_ic_fusion_1103.csv'
+FILE_DF = 'csvs/cxr_ic_fusion_1103.csv'
 
 EXPERIMENT_PATH = 'experiments'
 
-# All tasks
+# All tasks names
 FRACTURE = 'Fracture'
 LUNG_LESION = 'Lung Lesion'
 ENLARGED_CARDIOMEDIASTINUM = 'Enlarged Cardiomediastinum'
@@ -134,8 +143,8 @@ CARDIOMEGALY = 'Cardiomegaly'
 MORTALITY = '48h mortality'
 LOS = '48h los'
 
-# AUC values from the paper
 
+# AUC values from the paper
 AUC = {'HAIM': {FRACTURE: 0.838,
                 LUNG_LESION: 0.844,
                 ENLARGED_CARDIOMEDIASTINUM: 0.876,

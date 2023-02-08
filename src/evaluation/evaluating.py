@@ -5,24 +5,26 @@ Author : Hakima Laribi
 
 Description: This file is used to store Evaluator object which performs different evaluations on the dataset
 
-Date of last modification : 2023/01/11
+Date of last modification : 2023/02/07
 
 """
-import shutil
-import os
-from typing import Any, Callable, Dict, Union, List, Optional
-from src.evaluation.tuning import SklearnTuner, SklearnHpsOptimizer
-from src.data.dataset import HAIMDataset
-from sklearn.metrics import roc_curve
-from numpy import argmax, array, mean, std, median, min, max
-from os import makedirs, path
-from time import strftime
 import json
-import pandas as pd
-import matplotlib.pyplot as plt
+from os import makedirs, path
 from re import search
+import shutil
+from time import strftime
+from typing import Any, Callable, Dict, Union, List, Optional
+
+from src.data.dataset import HAIMDataset
+from src.evaluation.tuning import SklearnHpsOptimizer
+
+import matplotlib.pyplot as plt
 import numpy as np
-from src.data.constants import *
+import pandas as pd
+from sklearn.metrics import roc_curve
+
+from src.data import constants
+from src.utils.metric_scores import Metric
 
 
 class Evaluator:
@@ -36,7 +38,7 @@ class Evaluator:
                  metrics: List[Callable],
                  model: Callable,
                  tuner: Callable,
-                 tuning_metric: Callable,
+                 tuning_metric: Metric,
                  hps: Dict[str, Union[List[Any], Any]],
                  n_tuning_splits: int,
                  fixed_params: Dict[str, Any],
@@ -45,25 +47,26 @@ class Evaluator:
                  parallel_tuning: bool = True,
                  weight: Optional[str] = None,
                  evaluation_name: Optional[str] = None,
-                 stratified_sampling=False):
+                 stratified_sampling: bool = False):
         """
             Sets protected attributes of the Evaluator
 
             Args:
-                 dataset: custom HAIM dataset
-                 masks: dictionary with train, test and valid set at each split
-                 metrics: list of metrics to report at the end of the experiment
-                 model: model to evaluate
-                 tuner: tuner which perform hyper-parameter tuning
-                 tuning_metric: metric to optimize (maximize/minimize) during the hyper-parameter tuning
-                 n_tuning_splits: number of inner data splits, used in the tuning
-                 fixed_params: model's fixed parameters
-                 filepath: path to the directory where to store the experiment
-                 model_selector: hyper-parameter optimizer
-                 parallel_tuning: boolean to specify if the tuning would be in parallel
-                 weight: weight parameter
-                 evaluation_name: name of current evaluation
-                 stratified_sampling: if the sampling performed was stratified
+                 dataset(HAIMDataset): custom HAIM dataset
+                 masks(Dict[int, Dict[str, List[int]]]): dictionary with train, test and valid set at each split
+                 metrics(List[Callable]): list of metrics to report at the end of the experiment
+                 model(Callable): model to evaluate
+                 tuner(Callable): tuner which perform hyper-parameter tuning
+                 tuning_metric(Metric): metric to optimize (maximize/minimize) during the hyper-parameter tuning
+                 n_tuning_splits(int): number of inner data splits, used in the tuning
+                 hps(Dict[str, Union[List[Any], Any]]): each hyper-parameter with its search space
+                 fixed_params(Dict[str, Any]): model's fixed parameters
+                 filepath(str): path to the directory where to store the experiment
+                 model_selector(str): hyper-parameter optimizer
+                 parallel_tuning(hps): boolean to specify if the tuning would be in parallel
+                 weight(str): weight parameter
+                 evaluation_name(str): name of current evaluation
+                 stratified_sampling(bool): if the sampling performed was stratified
 
         """
 
@@ -84,10 +87,12 @@ class Evaluator:
         self._fixed_params = fixed_params
         self._weighted_param = weight
         self._filepath = path.join(filepath, evaluation_name)
-        self.evaluation_name = evaluation_name
         self._stratified_sampling = stratified_sampling
 
-    def evaluate(self):
+        # Set public attributes
+        self.evaluation_name = evaluation_name
+
+    def evaluate(self) -> None:
         """
             Performs nested evaluation and saves the result of each experiment in a json file
         """
@@ -132,23 +137,25 @@ class Evaluator:
         self.summarize_experiment(i + 1)
 
     @staticmethod
-    def optimize_j_statistic(targets: list,
-                             pred: list) -> float:
+    def optimize_j_statistic(targets: List[int],
+                             pred: List[float]) -> float:
         """
-        find the optimal threshold from ROC curve that separates the negative and positive classes by optimizing
-        he function the Youden's J statistics J = TruePositiveRate – FalsePositiveRate
-        Args:
-            targets: ground truth labels
-            pred: predicted probabilities to belong to the positive class (OYM=1)
+            Finds the optimal threshold from ROC curve that separates the negative and positive classes
+            by optimizing the Youden's J statistics
+                                        J = TruePositiveRate – FalsePositiveRate
 
-        Returns a float representing the optimal threshold
+            Args:
+                targets(List[int]): ground truth labels
+                pred(List[float]): predicted probabilities to belong to the positive class
+
+            Returns a float representing the optimal threshold
         """
         # Calculate roc curves
         fpr, tpr, thresholds = roc_curve(targets, pred, pos_label=1)
 
         # Get the best threshold
         J = tpr - fpr
-        threshold = thresholds[argmax(J)]
+        threshold = thresholds[np.argmax(J)]
 
         return threshold
 
@@ -158,18 +165,18 @@ class Evaluator:
                           threshold: float,
                           masks: Dict[str, List[int]],
                           split: int,
-                          hps: Dict[Any, Any]
-                          ):
+                          hps: Dict[str, Any]
+                          ) -> None:
         """
             Records the results of one single experiment on the test, train and valid sets in a json file
 
             Args:
-                predictions: probabilities predicted on all the sets
-                targets: ground truth labels of observation in each set
-                threshold: prediction threshold
-                masks: train, test and valid masks
-                split: index of the current split
-                hps: best hyper-parameters selected after the tuning
+                predictions(Dict[str, List[float]]): probabilities predicted on all the sets
+                targets(Dict[str, List[int]]): ground truth labels of observation in each set
+                threshold(float): prediction threshold
+                masks(Dict[str, List[int]]): train, test and valid masks
+                split(int): index of the current split
+                hps(Dict[str, Any]): best hyper-parameters selected after the tuning
 
         """
         # Create the saving directory
@@ -265,19 +272,18 @@ class Evaluator:
                 self.plot_roc_curve(saving_path, target, y_proba, mask)
 
         # Generate the Json file of the split
-
         with open(path.join(saving_path, 'records.json'), "w") as file:
             json.dump(summary, file, indent=True)
 
     def summarize_experiment(self,
                              n_splits: int
-                             ):
+                             ) -> None:
         """
-            Summarizes an experiment performed on different splits of the dataset ans saves it in a json file, the mean,
-            standard deviation, min and max are computed for each metric.
+            Summarizes an experiment performed on different splits of the dataset ans saves it in a json file.
+            The mean, standard deviation, min and max are computed for each metric.
 
             Args:
-                n_splits: number of splits the model was evaluated on
+                n_splits(int): number of splits the model was evaluated on
         """
         metrics_values = {}
         # Get the folders where each split evaluation was saved
@@ -306,13 +312,14 @@ class Evaluator:
         for section, data in metrics_values.items():
             recap[section] = {}
             for metric, values in data.items():
-                values = array(values)
-                mean_, std_ = round(mean(values), 4), round(std(values), 4)
-                med_, min_, max_ = round(median(values), 4), round(min(values), 4), round(max(values), 4)
+                values = np.array(values)
+                mean_scores, std_scores = round(np.mean(values), 4), round(np.std(values), 4)
+                med_scores = round(np.median(values), 4)
+                min_scores, max_scores = round(np.min(values), 4), round(np.max(values), 4)
                 recap[section][metric] = {
-                    'info': f"{mean_} +- {std_} [{med_}; {min_}-{max_}]",
-                    'mean': mean_,
-                    'std': std_,
+                    'info': f"{mean_scores} +- {std_scores} [{med_scores}; {min_scores}-{max_scores}]",
+                    'mean': mean_scores,
+                    'std': std_scores,
                 }
 
         # Save the file in disk
@@ -328,10 +335,9 @@ class Evaluator:
             Saves metrics scores regrouped in the recap json file in a dataframe and prints it
 
             Args:
-                recap_file: recap json file of the experiment
-                task: prediction task
-                file_path: directory where the experiment is saved
-
+                file_path(str): directory where the experiment is saved
+                task(str): prediction task
+                recap_file(str): recap json file of the experiment
         """
         recap_file = 'recap.json' if recap_file is None else recap_file
         with open(path.join(file_path, recap_file), "r") as file:
@@ -349,7 +355,7 @@ class Evaluator:
         for _set in ['HAIM', 'NON_HAIM']:
             for metric in metrics.keys():
                 if metric == 'AUC':
-                    metrics[metric][_set] = str(AUC[_set][task])
+                    metrics[metric][_set] = str(constants.AUC[_set][task])
                 else:
                     metrics[metric][_set] = '--'
 
@@ -359,21 +365,22 @@ class Evaluator:
         return df_metrics
 
     @staticmethod
-    def get_best_of_experiments(file_format: str,
+    def get_best_of_experiments(task: str,
                                 path_file: str,
-                                n_files: int,
-                                metric = 'AUC') -> None:
+                                n_experiments: int,
+                                metric: str = 'AUC') -> None:
         """
             Gets the experiment with the best metric value from a set of saved experiments
+
             Args:
-                file_format: file name format of the experiments
-                path_file: path to directory where the experiments are saved
-                n_files: number of experiments to compare
-                metric: metric name
+                task(str): file name format of the experiments
+                path_file(str): path to directory where the experiments are saved
+                n_experiments(int): number of experiments to compare
+                metric(str): metric name
         """
         metric_values = []
         # Get the folders where each recap evaluation was saved
-        folders = [path.join(path_file, file_format + str(i)) for i in range(n_files)]
+        folders = [path.join(path_file, task + '_' + str(i)) for i in range(n_experiments)]
 
         for folder in folders:
             with open(path.join(folder, 'recap.json'), "r") as read_file:
@@ -385,15 +392,17 @@ class Evaluator:
         best_experiment = np.argmax(np.array(metric_values))
 
         # Copy the files of the best experiment to the directory file_format_best_experiment
-        shutil.copytree(folders[best_experiment], path.join(path_file, file_format+'_best_experiment'))
+        shutil.copytree(folders[best_experiment], path.join(path_file, task + '_best_experiment'))
 
     @staticmethod
-    def reverse_map(map_: Dict[Any, Any]):
+    def reverse_map(map_: Dict[Any, Any]) -> Dict[Any, Any]:
         """
             Reverses the keys and values of a dictionary
 
             Args:
-                map_: dictionary
+                map_(Dict[Any, Any]): dictionary
+
+            Returns: a dictionary
         """
         reversed_map = {}
         for k, v in map_.items():
@@ -404,18 +413,18 @@ class Evaluator:
     @staticmethod
     def plot_roc_curve(
             saving_path: str,
-            targets: array,
-            y_proba: array,
-            mask: str):
+            targets: np.array,
+            y_proba: np.array,
+            mask: str) -> None:
 
         """
             Plots the Area Under AUC curve and saves it
 
             Args:
-                saving_path: path where to save the figure
-                targets: ground truth labels
-                y_proba: probabilities predicted
-                mask: label of the current mask
+                saving_path(str): path where to save the figure
+                targets(np.array): ground truth labels
+                y_proba(np.array): probabilities predicted
+                mask(str): label of the current mask
         """
 
         fpr, tpr, _ = roc_curve(targets, y_proba, pos_label=1)

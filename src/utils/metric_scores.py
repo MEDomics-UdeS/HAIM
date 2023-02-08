@@ -1,10 +1,18 @@
-from abc import ABC, abstractmethod
-from typing import Tuple, Union
+"""
+Filename: metric_scores.py
 
-import numpy as np
-import pandas as pd
+Author : Nicolas Raymond
+         Hakima Laribi
+
+Description: This file is used to store objects used for computing metrics
+
+Date of last modification : 2023/02/07
+
+"""
+
+from abc import ABC, abstractmethod
 from numpy import array, zeros, mean, prod, power, diag, sum
-from sklearn.metrics import brier_score_loss, auc, confusion_matrix, accuracy_score, roc_curve, balanced_accuracy_score, log_loss
+from sklearn.metrics import brier_score_loss, auc,  roc_curve, log_loss
 
 
 class Direction:

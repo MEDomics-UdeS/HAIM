@@ -5,13 +5,14 @@ Author : Hakima Laribi
 
 Description: This file is used to define the sampler class which creates train, test and valid masks
 
-Date of last modification : 2023/01/10
+Date of last modification : 2023/02/06
 """
-
-from typing import Callable, List, Tuple, Union, Optional, Dict
-from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
-import numpy as np
 from tqdm import tqdm
+from typing import Callable, List, Tuple, Union, Optional, Dict
+
+import numpy as np
+from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
+
 from src.data.dataset import HAIMDataset
 
 
@@ -19,6 +20,7 @@ class Sampler:
     """
         Object used in order to generate lists of indexes to use as train, valid and test masks
     """
+
     def __init__(self,
                  dataset: HAIMDataset,
                  split_column: str,
@@ -32,14 +34,15 @@ class Sampler:
             Sets public and protected attributed of the sampler
 
             Args:
-                dataset: custom HAIM dataset
-                split_column: the column according to which the data is sampled
-                n_splits: number of distinct splits
-                test_size: size of the test set
-                valid_size: size of the valid set
-                random_state: integer for reproducibility of experiments
-                cross_validation: boolean to specify weather perform a cross-validation or a sampling with replacement
-                stratify_column: if not None, specifies the column according to which perform a stratified sampling
+                dataset(HAIMDataset): custom HAIM dataset
+                split_column(str): the column according to which the data is sampled
+                n_splits(int): number of distinct splits
+                test_size(float): size of the test set
+                valid_size(float): size of the valid set
+                random_state(int): integer for reproducibility of experiments
+                cross_validation(bool): boolean to specify weather perform a cross-validation or a sampling with
+                 replacement
+                stratify_column(str): if not None, specifies the column according to which perform a stratified sampling
 
         """
 
@@ -58,7 +61,7 @@ class Sampler:
         self._dataset = dataset
         self._split_column = split_column
         self._n_splits = n_splits
-        self._test_size = test_size if not cross_validation else 1/float(n_splits)
+        self._test_size = test_size if not cross_validation else 1 / float(n_splits)
         self._valid_size = valid_size
         self._random_state = random_state
         self._cv = cross_validation
@@ -95,61 +98,57 @@ class Sampler:
             splitter = StratifiedKFold(n_splits=self._n_splits, shuffle=True, random_state=self._random_state)
 
             def split(indexes: np.array, targets: np.array) -> Tuple[Dict, Dict]:
-                with tqdm(total=self._n_splits) as bar:
-                    for i, (train, test) in enumerate(splitter.split(indexes, targets)):
-                        # Get valid set
-                        train, test = indexes[train], indexes[test]
-                        train, valid = self.__get_valid_set(train, stratify=targets[train.tolist()],
-                                                            random_state=self._random_state + i)
-                        # Update masks
-                        global_masks[i] = {'train': train.tolist(), 'test': test.tolist(),
-                                           'valid':  valid.tolist() if valid is not None else None}
-                        masks[i] = {'train': train.tolist(), 'test': test.tolist(),
-                                    'valid':  valid.tolist() if valid is not None else None}
-                        bar.update()
+                for i, (train, test) in enumerate(splitter.split(indexes, targets)):
+                    # Get valid set
+                    train, test = indexes[train], indexes[test]
+                    train, valid = self.__get_valid_set(train, stratify=targets[train.tolist()],
+                                                        random_state=self._random_state + i)
+                    # Update masks
+                    global_masks[i] = {'train': train.tolist(), 'test': test.tolist(),
+                                       'valid': valid.tolist() if valid is not None else None}
+                    masks[i] = {'train': train.tolist(), 'test': test.tolist(),
+                                'valid': valid.tolist() if valid is not None else None}
+
                 return global_masks, masks
 
         elif self._cv and self._stratify is None:
             splitter = KFold(n_splits=self._n_splits, shuffle=True, random_state=self._random_state)
 
             def split(indexes: np.array, targets: np.array) -> Tuple[Dict, Dict]:
-                with tqdm(total=self._n_splits) as bar:
-                    for i, (train, test) in enumerate(splitter.split(indexes, targets)):
-                        # Get valid set
-                        train, test = indexes[train], indexes[test]
-                        train, valid = self.__get_valid_set(train, random_state=self._random_state+i)
+                for i, (train, test) in enumerate(splitter.split(indexes, targets)):
+                    # Get valid set
+                    train, test = indexes[train], indexes[test]
+                    train, valid = self.__get_valid_set(train, random_state=self._random_state + i)
 
-                        # Get indexes sampled in each set
-                        train_idx, test_idx, valid_idx = self.__get_idx(train, test, valid)
+                    # Get indexes sampled in each set
+                    train_idx, test_idx, valid_idx = self.__get_idx(train, test, valid)
 
-                        # Update masks
-                        global_masks[i] = {'train': train.tolist(), 'test': test.tolist(),
-                                           'valid': valid.tolist() if valid is not None else None}
-                        masks[i] = {'train': train_idx, 'test': test_idx, 'valid': valid_idx}
-                        bar.update()
+                    # Update masks
+                    global_masks[i] = {'train': train.tolist(), 'test': test.tolist(),
+                                       'valid': valid.tolist() if valid is not None else None}
+                    masks[i] = {'train': train_idx, 'test': test_idx, 'valid': valid_idx}
+
                 return global_masks, masks
 
         else:
             def split(indexes: np.array, targets: np.array) -> Tuple[Dict, Dict]:
-                with tqdm(total=self._n_splits) as bar:
-                    for i in range(self._n_splits):
+                for i in range(self._n_splits):
+                    # Split the dataset to train and test
+                    train, test = train_test_split(indexes, test_size=self._test_size,
+                                                   random_state=self._random_state + i, stratify=targets)
+                    # Get valid set
+                    train_targets = targets[train.tolist()] if targets is not None else None
+                    train, valid = self.__get_valid_set(train, stratify=train_targets,
+                                                        random_state=self._random_state + i)
 
-                        # Split the dataset to train and test
-                        train, test = train_test_split(indexes, test_size=self._test_size,
-                                                       random_state=self._random_state + i, stratify=targets)
-                        # Get valid set
-                        train_targets = targets[train.tolist()] if targets is not None else None
-                        train, valid = self.__get_valid_set(train, stratify=train_targets,
-                                                            random_state=self._random_state + i)
+                    # Get indexes sampled in each set
+                    train_idx, test_idx, valid_idx = self.__get_idx(train, test, valid)
 
-                        # Get indexes sampled in each set
-                        train_idx, test_idx, valid_idx = self.__get_idx(train, test, valid)
+                    # Update masks
+                    global_masks[i] = {'train': train.tolist(), 'test': test.tolist(),
+                                       'valid': valid.tolist() if valid is not None else None}
+                    masks[i] = {'train': train_idx, 'test': test_idx, 'valid': valid_idx}
 
-                        # Update masks
-                        global_masks[i] = {'train': train.tolist(), 'test': test.tolist(),
-                                           'valid':  valid.tolist() if valid is not None else None}
-                        masks[i] = {'train': train_idx, 'test': test_idx, 'valid': valid_idx}
-                        bar.update()
                 return global_masks, masks
 
         return split
@@ -160,6 +159,13 @@ class Sampler:
                   valid_mask: List[int] = None) -> Tuple[List[int], List[int], Union[List[int], None]]:
         """
             Gets indexes associated with the global masks
+
+            Args:
+                train_mask(List[int]): global ids in the train set
+                test_mask(List[int]): global ids in the test set
+                valid_mask(List[int]): global ids in the valid set
+
+            Returns: Tuple of lists
         """
 
         # Get observations indexes in the dataframe corresponding to IDS of the split column selected in each set
@@ -167,19 +173,28 @@ class Sampler:
         # different stays and visits as present in the dataframe are then collected
         m = self._dataset.task_dataset[self._split_column].isin(train_mask)
         train_idx = self._dataset.task_dataset.index[m].tolist()
-        test_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(test_mask)].tolist()
-        valid_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(valid_mask)].tolist() \
-            if valid_mask is not None else None
+        test_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(test_mask)]. \
+            tolist()
+        valid_idx = self._dataset.task_dataset.index[self._dataset.task_dataset[self._split_column].isin(valid_mask)]. \
+            tolist() if valid_mask is not None else None
 
         return train_idx, test_idx, valid_idx
 
     def __get_valid_set(self,
                         train_mask: np.array,
                         stratify: Optional[np.array] = None,
-                        random_state=None) -> Tuple[np.array, Union[np.array, None]]:
+                        random_state: int = None) -> Tuple[np.array, Union[np.array, None]]:
 
         """
-            Splits the remaining set to train and valid sets
+            Splits the train set to the final train and valid sets
+
+            Args:
+                train_mask(np.array): (N,) ids of observations in the train set
+                stratify(Optional[np.array]): (N,) if not None, data is split in a stratified fashion, using this as
+                the class labels.
+                random_state(int): seed to reproduce the results
+
+            Returns: Tuple
         """
 
         train, valid = train_mask, None
