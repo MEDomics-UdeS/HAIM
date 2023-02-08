@@ -66,13 +66,11 @@ run the following command:
 ```
 $ python run_experiments.py
 ```
-```diff
-- WARNING
-- The HAIM experiment performs 14324 evaluations (1023 evaluations for each 
-- of the chest pathologies prediction tasks and 2047 for the length-of-stay 
-- and 48h mortality). We didn't run the experiment but we approximate the 
-- execution time to 200 days run with the current implementation using only 10 CPUs.
-```
+ 
+> **Warning**
+> 
+> The HAIM experiment performs 14324 evaluations (1023 evaluations for each of the chest pathologies prediction tasks and 2047 for the length-of-stay and 48h mortality). We didn't run the experiment but we approximate the execution time to 200 days run with the current implementation using only 10 CPUs.
+
 The experiments results (metrics values and figures) will be stored in the [``experiments``](experiments) directory where the name of each folder is structured as ``TaskName_NumberOfTheExperiment``
 (ex. Fracture_25). For each prediction task, the sources combination with the best AUC will be stored in the directory ``TaskName_best_experiment``.
 
@@ -98,12 +96,10 @@ Length of stay     | "48h los" | constants.LOS |
 ## 3. Prediction of the 12 tasks using the 4 modalities 
 Experiments using all the sources from the 4 modalities to predict the 12 tasks can be found in the [``notebooks``](notebooks) directory. Each notebook is named after the prediction task it performs.
 
----
-**NOTE**
+> **Note**
+> 
+> All the 11 sources were used to predict the length-of-stay and 48 hours mortality but the radiology notes were excluded to predict the chest pathologies to avoid data leakage.
 
-All the 11 sources were used to predict the length-of-stay and 48 hours mortality but the radiology notes were excluded to predict the chest pathologies to avoid data leakage.
-
----
 
 
 Below are the ``AUC`` values reported from our experiments compared to those reported in the HAIM paper (refer to page 4 from the [paper](https://www.nature.com/articles/s41746-022-00689-4))
@@ -127,12 +123,10 @@ Length of stay     | 0.932 +- 0.012		 | 0.939|
 
 More statistics and metrics are reported from each of the 12 experiments above and can be found in the ``experiments`` directory. Each experiment directory is named after the task on which the prediction model was evaluated.
 
----
-**NOTE**
+> **Note**
+> 
+> The paper reported the best AUC value among all the experiments (all possible sources combinations for each predictive task) for each task while we reported the AUC value resulting from the evaluation using all the sources for each predictive task.
 
-The paper reported the best AUC value among all the experiments (all possible sources combinations for each predictive task) for each task while we reported the AUC value resulting from the evaluation using all the sources for each predictive task.
-
----
 
 ## 4. Prediction of one single task using all sources combinations
 We tried to reproduce the HAIM experiment and used all the 1023 possible sources combinations to predict the presence or absence of a fracture in a patient and select the one resulting in the best ``AUC``.
