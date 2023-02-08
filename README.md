@@ -141,7 +141,7 @@ The above experiment can be performed using the following command
 ```
 $ python run_experiments.py -t "Fracture"
 ```
-A recap of the experiment named [``Fracture_best_experiment``](experiments/Fracture__best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
+A recap of the experiment named [``Fracture_best_experiment``](experiments/Fracture_best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
 
 ## 5. Issues 
 While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset. See [``corrupted_ids.ipynb``](corrupted_ids.ipynb) for further details. 
