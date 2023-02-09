@@ -8,7 +8,7 @@ This package is our own adaptation of the [HAIM GitHub package](https://github.c
 
 ## 2. How to use the package ?
 The dataset used to replicate this study is publicly available in [physionet](https://physionet.org/content/haim-multimodal/1.0.1/). To run this package:
-- Download the dataset and move it to [csvs](csvs).
+- Download the dataset and move the file ``cxr_ic_fusion_1103.csv`` to [csvs](csvs).
 - Install the requirements under **Python 3.9.13** as following:
 ```
 $ pip install requirements.txt
