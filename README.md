@@ -143,10 +143,7 @@ $ python run_experiments.py -t "Fracture"
 ```
 A recap of the experiment named [``Fracture_best_experiment``](experiments/Fracture_best_experiment) is generated at the end of the experiment containing more statistics and metrics values.
 
-## 5. Issues 
-While working on reproducing HAIM experiments, we observed some problems on the published embedded dataset. While img_id is supposed to uniquely identify each image, redundant img_ids belonging to different patients were found in the dataset. See [``corrupted_ids.ipynb``](corrupted_ids.ipynb) for further details. 
-
-## 6. Future work
+## 5. Future work
 The next step of our package is to regenerate the embeddings for each source type. For each modality (tabular, time-series, image, text), we will also explore new embeddings generators. 
 
 ## Project Tree
@@ -164,7 +161,6 @@ The next step of our package is to regenerate the embeddings for each source typ
 │   │   └── evaluating.py         <- Skeleton of each experiment process 
 │   └── utils                     
 │   │   └── metric_scores.py      <- Custom metrics implementations and wrappers
-├── corrupted_ids.ipynb           <- Notebook to highlight some issues in the dataset
 ├── requirements.txt              <- All the requirements to install to run the project
 ├── run_experiments.py            <- Main script used to replicate the experiments of the HAIM study
 └── README.md
