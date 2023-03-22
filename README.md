@@ -11,7 +11,7 @@ The dataset used to replicate this study is publicly available in [physionet](ht
 - Download the dataset and move the file ``cxr_ic_fusion_1103.csv`` to [csvs](csvs).
 - Install the requirements under **Python 3.9.13** as following:
 ```
-$ pip install requirements.txt
+$ pip install -r requirements.txt
 ```
 The package can be used with different sources combinations to predict one of the 12 predictive tasks defined above. Here is a code snippet which uses one 
 combination of sources to predict patient's length-of-stay:
